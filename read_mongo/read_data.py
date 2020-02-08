@@ -4,6 +4,7 @@
 import pymongo
 import codecs
 import jieba.analyse
+import multiprocessing
 
 
 def cut_text(text, stop_words):
@@ -32,8 +33,12 @@ def process_data():
     stop_file = codecs.open("./data/stop_words.txt", "r", encoding="utf8")
     stop_words = stop_file.read().split("\n")
     jieba.set_dictionary("./data/dict.txt.big")
+    jieba.enable_parallel(multiprocessing.cpu_count())
+    count = 1
     for x in myresult:
+        print("process ", count)
         cut_text(x, stop_words)
+        count += 1
 
 
 if __name__ == "__main__":
