@@ -3,4 +3,5 @@
 output
 *.model
 *.vector
-*.txt
+.python-version
+train_data
