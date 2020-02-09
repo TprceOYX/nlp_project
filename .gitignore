@@ -5,3 +5,5 @@ output
 *.vector
 .python-version
 train_data
+models
+cache
