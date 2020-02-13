@@ -46,22 +46,21 @@ def get_stop_words(path):
 
 
 def Main():
-    client = pymongo.MongoClient(
-        "mongodb://tprce:1634834938@47.94.0.240:27017/")
+    client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
     db = client["document"]
     collection = db["baike"]
     baike_total_count = collection.count()
 
     stop_words = get_stop_words("./data/stop_words.txt")
     jieba.set_dictionary("./data/dict.txt.big")
-    i = 0
-    count = 1
+    count = 31
+    i = 10000 * (count - 1)
     while i < baike_total_count:
-        read_baike_data.process_data(stop_words, collection, i, 5000)
+        read_baike_data.process_data(stop_words, collection, i, 10000)
         # train.main_func()
-        make_targz("./train_data/baike"+str(count)+".tar.gz", "./cache")
+        make_targz("./train_data/baike" + str(count) + ".tar.gz", "./cache")
         clear_dir()
-        i += 5000
+        i += 10000
         count += 1
 
 

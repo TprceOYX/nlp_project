@@ -3,9 +3,13 @@
 豆瓣短评和长评，使用另外的函数
 '''
 import codecs
+import re
 
 import jieba.analyse
 import pymongo
+
+pattern = pattern = re.compile(
+    u'[\u4e00-\u9fa5\u0041-\u005a\u0061-\u007a]+')
 
 
 def cut_text(text, stop_words):
@@ -16,9 +20,12 @@ def cut_text(text, stop_words):
     line = ""
     # 去除标点符号
     for word in words:
-        if word not in stop_words:
-            line += word
-            line += " "
+        m = pattern.match(word)
+        if m is not None:
+            d = m.group()
+            if d not in stop_words:
+                line += d
+                line += " "
     target.writelines(line)
     target.close()
 
@@ -38,10 +45,14 @@ def get_stop_words(path):
 
 
 def process_data(stop_words, collection, start=0, batch=1000):
-    result = collection.find({}, {"_id": 1, "text": 1}).skip(start).limit(batch)
+    result = collection.find({}, {
+        "_id": 1,
+        "text": 1
+    }).skip(start).limit(batch)
     # 加载停用词，如标点符号等
     # jieba.enable_parallel(multiprocessing.cpu_count())
     count = 0
+    # [\u0800-\u4e00]+
     for x in result:
         cut_text(x, stop_words)
         count += 1

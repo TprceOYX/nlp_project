@@ -28,11 +28,12 @@ def train_wordVectors(
         w2vModel = word2vec.Word2Vec(sentences,
                                      size=embedding_size,
                                      window=window,
+                                     sg=1,
                                      min_count=min_count,
                                      workers=multiprocessing.cpu_count())
     w2vModel.train(sentences,
                    total_examples=w2vModel.corpus_count,
-                   epochs=w2vModel.iter)
+                   epochs=1)
     return w2vModel
 
 
@@ -70,14 +71,13 @@ def main_func():
     segment_dir = './train_data'
     sentences = word2vec.PathLineSentences(segment_dir)
     # 一般训练，设置以下几个参数即可：
-    word2vec_path = './models/word2Vec.model'
+    word2vec_path = './models/word2vec.model'
     model = train_wordVectors(word2vec_path,
                               sentences,
-                              embedding_size=128,
+                              embedding_size=256,
                               window=5,
                               min_count=5)
     save_wordVectors(model, word2vec_path)
-    # print(model2.wv.similarity('沙瑞金', '高育良'))
 
 
 if __name__ == '__main__':
