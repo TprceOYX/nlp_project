@@ -7,3 +7,5 @@ output
 train_data
 models
 cache
+zhwiki
+tf_idf_models

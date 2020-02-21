@@ -33,7 +33,7 @@ def train_wordVectors(
                                      workers=multiprocessing.cpu_count())
     w2vModel.train(sentences,
                    total_examples=w2vModel.corpus_count,
-                   epochs=1)
+                   epochs=w2vModel.iter)
     return w2vModel
 
 
@@ -51,7 +51,7 @@ def check_model_exist(path):
     return os.path.exists(path)
 
 
-def main_func():
+def train_w2v():
     program = os.path.basename(sys.argv[0])
     logger = logging.getLogger(program)
     # 1.format: 指定输出的格式和内容，format可以输出很多有用信息，
@@ -81,4 +81,4 @@ def main_func():
 
 
 if __name__ == '__main__':
-    main_func()
+    train_w2v()
