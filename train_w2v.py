@@ -39,7 +39,7 @@ def train_wordVectors(
 
 def save_wordVectors(w2vModel, word2vec_path):
     w2vModel.save(word2vec_path)
-    # w2vModel.wv.save_word2vec_format("./models/word2Vec2.model", binary=False)
+    w2vModel.wv.save_word2vec_format("./models/final/word2Vec2.model", binary=True)
 
 
 def load_wordVectors(word2vec_path):
@@ -71,7 +71,7 @@ def train_w2v():
     segment_dir = './train_data'
     sentences = word2vec.PathLineSentences(segment_dir)
     # 一般训练，设置以下几个参数即可：
-    word2vec_path = './models/word2vec.model'
+    word2vec_path = './models/train/word2vec.model'
     model = train_wordVectors(word2vec_path,
                               sentences,
                               embedding_size=256,

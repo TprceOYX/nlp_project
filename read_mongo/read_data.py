@@ -8,7 +8,7 @@ import re
 import jieba.analyse
 import pymongo
 
-pattern = pattern = re.compile(u'[\u4e00-\u9fa5]+')
+pattern = re.compile(u'[\u4e00-\u9fa5]+')
 
 
 def cut_text1(text, stop_words, converter):
@@ -19,12 +19,12 @@ def cut_text1(text, stop_words, converter):
         if m is not None:
             d = m.group()
             if d not in stop_words:
-                line += d
+                line += converter.convert(d)
                 line += " "
     return line
 
 
-def cut_text2(text, stop_words):
+def cut_text2(text, stop_words, converter):
     target = codecs.open("./cache/" + str(text["_id"]) + ".txt",
                          'w',
                          encoding="utf8")
@@ -35,7 +35,7 @@ def cut_text2(text, stop_words):
         if m is not None:
             d = m.group()
             if d not in stop_words:
-                line += d
+                line += converter.convert(d)
                 line += " "
     target.writelines(line)
     target.close()
