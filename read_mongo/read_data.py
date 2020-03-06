@@ -3,6 +3,7 @@
 豆瓣短评和长评，使用另外的函数
 '''
 import codecs
+import os
 import re
 
 import jieba.analyse
@@ -108,6 +109,40 @@ def process_wiki(read_file_path, save_file_path, stop_words):
         if text != "":
             output.write(text + "\n")
     output.close()
+
+
+def process_novels(read_file_path, stop_words):
+    filenames = os.listdir(read_file_path)
+    count = 0
+    num = 8
+    output = codecs.open("./train_data/novels1_" + str(num),
+                         "w+",
+                         encoding="utf-8")
+    for filename in filenames:
+        print(filename)
+        try:
+            with codecs.open(os.path.join(read_file_path, filename),
+                             "r",
+                             encoding="utf-8") as file:
+                for line in file:
+                    line = line.strip('\n')
+                    text = cut_wiki(line, stop_words)
+                    if text != "":
+                        output.write(text + "\n")
+                file.close()
+                count += 1
+                if count % 100 == 0:
+                    num += 1
+                    output.close()
+                    output = codecs.open("./train_data/novels1_" + str(num),
+                                         "w+",
+                                         encoding="utf-8")
+        except Exception:
+            print("err")
+
+    if count % 100 != 0:
+        output.close()
+    return
 
 
 if __name__ == "__main__":

@@ -120,8 +120,15 @@ def read_zhwiki():
                                stop_words)
 
 
+def read_novels():
+    stop_words = get_stop_words("./data/stop_words.txt")
+    jieba.set_dictionary("./data/dict.txt.big")
+    read_data.process_novels("./novels", stop_words)
+
+
 if __name__ == "__main__":
     # read_baike()
     # read_douban_review()
     # read_douban_short()
-    read_zhwiki()
+    # read_zhwiki()
+    read_novels()

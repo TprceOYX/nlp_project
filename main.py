@@ -37,7 +37,7 @@ def pre_step(arr, cc, stop_words):
     return data
 
 
-def cal_sim(str1, str2):
+def cal_sim(str1, str2, mode):
     stop_words = process_train_data.get_stop_words("./data/stop_words.txt")
     jieba.set_dictionary("./data/dict.txt.big")
     cc = OpenCC("t2s")
@@ -56,7 +56,7 @@ def cal_sim(str1, str2):
     tf1 = tfidf[vec1]
     # tf1[词的数字表示，权重]
     tf2 = tfidf[vec2]
-    w2v(tf1, tf2, new_dictionary)
+    w2v(tf1, tf2, data1, data2, new_dictionary, mode)
     # simhash(tf1, tf2, new_dictionary)
 
 
@@ -120,10 +120,21 @@ def simhash(tf1, tf2, new_dictionary):
     print("distance = " + str(distance))
 
 
-def w2v(tf1, tf2, new_dictionary):
-    w2v = models.KeyedVectors.load_word2vec_format(
-        "./models/final/word2Vec2.model", binary=True)
-    print("finish loading w2v model")
+def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
+    if mode == "test":
+        w2v = models.KeyedVectors.load_word2vec_format(
+            "./models/final/word2Vec2.model")
+        print("finish loading w2v model")
+    else:
+        w2v = models.word2vec.Word2Vec.load("./models/train/word2Vec2.model")
+        print("finish loading w2v model")
+        sentences = [s1, s2]
+        w2v.build_vocab(sentences, update=True)
+        print("finish update w2v model")
+        w2v.train(sentences, total_examples=2, epochs=w2v.iter)
+        print("finish train w2v model")
+        w2v.wv.wv.save_word2vec_format("./models/final/word2Vec2.model", binary=True)
+        w2v.save("./models/train/word2Vec2.model")
     sim1 = 0
     total_wight1 = 0
     for t1 in tf1:
@@ -178,6 +189,6 @@ if __name__ == "__main__":
             "也许是太阳公公的桥梁吧！太阳仿佛是一个胆小的姑娘，不敢往上爬升，只是在地平线上露出了小脑袋。天由鱼肚色慢慢变成似海洋的蔚蓝色，太阳爬得非常缓慢，"\
             "未免令人着急，渐渐地，太阳胆子变大了，露出了半个头，更加激动人心，接着，已经露出了三分之二。很快，太阳不断地努力，终于爬上了天空，"\
             "此时的太阳不像大火球，因为它要歇一歇，阳光十分温和。阳光把河水照得仿佛金子一样闪闪发光，鱼儿们游来游去，小鸟纷纷“叽叽喳喳”地唱歌。就这样，大地苏醒过来了。"
-    cal_sim(str1, str2)
+    cal_sim(str1, str2, "test")
     # s = string_hash("我")
     # print(s)
