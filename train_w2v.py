@@ -33,7 +33,7 @@ def train_wordVectors(
                                      workers=multiprocessing.cpu_count())
     w2vModel.train(sentences,
                    total_examples=w2vModel.corpus_count,
-                   epochs=w2vModel.iter)
+                   epochs=2)
     return w2vModel
 
 

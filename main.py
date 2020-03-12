@@ -1,4 +1,7 @@
+import codecs
+import os
 import re
+import sys
 
 import jieba
 import numpy as np
@@ -123,7 +126,7 @@ def simhash(tf1, tf2, new_dictionary):
 def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
     if mode == "test":
         w2v = models.KeyedVectors.load_word2vec_format(
-            "./models/final/word2Vec2.model")
+            "./models/final/word2Vec2.model", binary=True)
         print("finish loading w2v model")
     else:
         w2v = models.word2vec.Word2Vec.load("./models/train/word2Vec2.model")
@@ -133,7 +136,8 @@ def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
         print("finish update w2v model")
         w2v.train(sentences, total_examples=2, epochs=w2v.iter)
         print("finish train w2v model")
-        w2v.wv.wv.save_word2vec_format("./models/final/word2Vec2.model", binary=True)
+        w2v.wv.wv.save_word2vec_format("./models/final/word2Vec2.model",
+                                       binary=True)
         w2v.save("./models/train/word2Vec2.model")
     sim1 = 0
     total_wight1 = 0
@@ -146,7 +150,7 @@ def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
             if d > m:
                 m = d
         wight = t1[1]
-        print(str(m) + "-------" + str(wight))
+        # print(str(m) + "-------" + str(wight))
         sim1 += m * wight
         total_wight1 += wight
     sim1 = (sim1 / total_wight1)
@@ -164,7 +168,7 @@ def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
             if d > m:
                 m = d
         wight = t2[1]
-        print(str(m) + "-------" + str(wight))
+        # print(str(m) + "-------" + str(wight))
         sim2 += m * wight
         total_wight2 += wight
     sim2 = (sim2 / total_wight2)
@@ -174,21 +178,38 @@ def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
     print(sim)
 
 
+def read_file(path):
+    file = codecs.open(path, "r", encoding="utf-8")
+    data = []
+    for line in file:
+        data.append(line.strip())
+    return "".join(data)
+
+
 if __name__ == "__main__":
-    # cal_sim("我喜欢吃马铃薯，他也喜欢吃", "我喜欢吃马铃薯，他也喜欢吃")
-    # cal_sim("我喜欢吃马铃薯，他也喜欢吃", "我爱吃土豆，他也爱吃")
-    str1 = "黎明，一丝微弱的阳光从玻璃窗里透了进来，如同一丝金光，使屋里不再黑暗。"\
-            "东方一点儿一点儿泛着鱼肚色的天空，飘着五颜六色的朝霞，有：降紫的、金黄的、青色的……甚至还有一些火红色的火烧云，好像把大半个天给点燃，简直就是美不胜收。"\
-            "今天的朝霞十分奇异，既不像棉花糖，又不像绵羊，而像鱼鳞，很罕见，如果把蓝天比作大海，那这朝霞就是海浪，令人陶醉。在东南方向，还有一道七色彩虹，像桥一样，"\
-            "也许是太阳公公的桥梁吧！太阳仿佛是一个胆小的姑娘，不敢往上爬升，只是在地平线上露出了小脑袋。天由鱼肚色慢慢变成似大海的蔚蓝色，太阳爬得非常缓慢，"\
-            "未免令人着急，渐渐地，太阳胆子变大了，露出了半个头，更加激动人心，接着，已经露出了三分之二。很快，太阳不断地努力，终于爬上了天空，"\
-            "此时的太阳不像大火球，因为它要歇一歇，阳光十分温和。阳光把河水照得仿佛金子一样闪闪发光，鱼儿们游来游去，小鸟纷纷“叽叽喳喳”地唱歌。就这样，大地苏醒过来了。"
-    str2 = "早上，一丝微弱的阳光从玻璃窗里透了进来，好像一丝金光，使屋里不再黑暗。"\
-            "东方一点一点泛着鱼肚色的天空，飘着五颜六色的朝霞，有：降紫的、金黄的、青色的……甚至还有一些火红色的火烧云，好像把大半个天给点燃，简直就是美不胜收。"\
-            "今天的朝霞十分奇异，既不像棉花糖，又不像绵羊，而像鱼鳞，很罕见，如果把蓝天比作大海，那这朝霞就是海浪，令人陶醉。在东南方向，还有一道七色彩虹，像桥一样，"\
-            "也许是太阳公公的桥梁吧！太阳仿佛是一个胆小的姑娘，不敢往上爬升，只是在地平线上露出了小脑袋。天由鱼肚色慢慢变成似海洋的蔚蓝色，太阳爬得非常缓慢，"\
-            "未免令人着急，渐渐地，太阳胆子变大了，露出了半个头，更加激动人心，接着，已经露出了三分之二。很快，太阳不断地努力，终于爬上了天空，"\
-            "此时的太阳不像大火球，因为它要歇一歇，阳光十分温和。阳光把河水照得仿佛金子一样闪闪发光，鱼儿们游来游去，小鸟纷纷“叽叽喳喳”地唱歌。就这样，大地苏醒过来了。"
-    cal_sim(str1, str2, "test")
+    count = len(sys.argv)
+    if count != 3:
+        # cal_sim("我喜欢吃马铃薯，他也喜欢吃", "我喜欢吃马铃薯，他也喜欢吃")
+        # cal_sim("我喜欢吃马铃薯，他也喜欢吃", "我爱吃土豆，他也爱吃")
+        str1 = "黎明，一丝微弱的阳光从玻璃窗里透了进来，如同一丝金光，使屋里不再黑暗。"\
+                "东方一点儿一点儿泛着鱼肚色的天空，飘着五颜六色的朝霞，有：降紫的、金黄的、青色的……甚至还有一些火红色的火烧云，好像把大半个天给点燃，简直就是美不胜收。"\
+                "今天的朝霞十分奇异，既不像棉花糖，又不像绵羊，而像鱼鳞，很罕见，如果把蓝天比作大海，那这朝霞就是海浪，令人陶醉。在东南方向，还有一道七色彩虹，像桥一样，"\
+                "也许是太阳公公的桥梁吧！太阳仿佛是一个胆小的姑娘，不敢往上爬升，只是在地平线上露出了小脑袋。天由鱼肚色慢慢变成似大海的蔚蓝色，太阳爬得非常缓慢，"\
+                "未免令人着急，渐渐地，太阳胆子变大了，露出了半个头，更加激动人心，接着，已经露出了三分之二。很快，太阳不断地努力，终于爬上了天空，"\
+                "此时的太阳不像大火球，因为它要歇一歇，阳光十分温和。阳光把河水照得仿佛金子一样闪闪发光，鱼儿们游来游去，小鸟纷纷“叽叽喳喳”地唱歌。就这样，大地苏醒过来了。"
+        str2 = "早上，一丝微弱的阳光从玻璃窗里透了进来，好像一丝金光，使屋里不再黑暗。"\
+                "东方一点一点泛着鱼肚色的天空，飘着五颜六色的朝霞，有：降紫的、金黄的、青色的……甚至还有一些火红色的火烧云，好像把大半个天给点燃，简直就是美不胜收。"\
+                "今天的朝霞十分奇异，既不像棉花糖，又不像绵羊，而像鱼鳞，很罕见，如果把蓝天比作大海，那这朝霞就是海浪，令人陶醉。在东南方向，还有一道七色彩虹，像桥一样，"\
+                "也许是太阳公公的桥梁吧！太阳仿佛是一个胆小的姑娘，不敢往上爬升，只是在地平线上露出了小脑袋。天由鱼肚色慢慢变成似海洋的蔚蓝色，太阳爬得非常缓慢，"\
+                "未免令人着急，渐渐地，太阳胆子变大了，露出了半个头，更加激动人心，接着，已经露出了三分之二。很快，太阳不断地努力，终于爬上了天空，"\
+                "此时的太阳不像大火球，因为它要歇一歇，阳光十分温和。阳光把河水照得仿佛金子一样闪闪发光，鱼儿们游来游去，小鸟纷纷“叽叽喳喳”地唱歌。就这样，大地苏醒过来了。"
+        cal_sim(str1, str2, "test")
+    else:
+        a1 = sys.argv[1]
+        a2 = sys.argv[2]
+        if os.path.exists(a1) and os.path.exists(a2):
+            cal_sim(read_file(a1), read_file(a2), "test")
+        else:
+            cal_sim(a1, a2, "test")
     # s = string_hash("我")
     # print(s)

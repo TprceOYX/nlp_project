@@ -69,12 +69,13 @@ def make_tf_idf_model(model_path, data_path, model_name, dictionary_name):
     if not os.path.exists(model_path):
         os.makedirs(model_path)
     if os.path.exists(os.path.join(model_path, dictionary_name)):
+        print("load tf-idf model")
         dictionary = corpora.Dictionary.load(
             os.path.join(model_path, dictionary_name))
-        dictionary.add_documents(create_dictionary(data_path), prune_at=5050500)
+        dictionary.add_documents(create_dictionary(data_path), prune_at=6666666)
     else:
         dictionary = corpora.Dictionary(create_dictionary(data_path),
-                                        prune_at=5050500)
+                                        prune_at=6666666)
     print("finish create dictionary")
     # corpus = create_corpus(data_path, dictionary)
     print("finish create corpus")
@@ -104,10 +105,10 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
     logging.root.setLevel(level=logging.INFO)
     # 生成tf-idf模型
-    make_tf_idf_model(model_path="./tf_idf_models",
-                      data_path="./train_data",
-                      model_name="tfidf.model",
-                      dictionary_name="tfidf.dictionary")
-    # 加载并使用模型
-    ti = load_tf_idf_model("./tf_idf_models", "我 熟练 使用 电脑")
+    # make_tf_idf_model(model_path="./tf_idf_models",
+    #                   data_path="./train_data",
+    #                   model_name="tfidf.model",
+    #                   dictionary_name="tfidf.dictionary")
+    # # 加载并使用模型
+    ti = load_tf_idf_model("./tf_idf_models", "我 熟练 使用 电脑 玩 电子游戏 尤其 是 外星人 鸦片 罂粟")
     print(ti)

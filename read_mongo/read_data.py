@@ -114,8 +114,8 @@ def process_wiki(read_file_path, save_file_path, stop_words):
 def process_novels(read_file_path, stop_words):
     filenames = os.listdir(read_file_path)
     count = 0
-    num = 8
-    output = codecs.open("./train_data/novels1_" + str(num),
+    num = 0
+    output = codecs.open("./train_data2/novels2_" + str(num),
                          "w+",
                          encoding="utf-8")
     for filename in filenames:
@@ -134,7 +134,7 @@ def process_novels(read_file_path, stop_words):
                 if count % 100 == 0:
                     num += 1
                     output.close()
-                    output = codecs.open("./train_data/novels1_" + str(num),
+                    output = codecs.open("./train_data2/novels2_" + str(num),
                                          "w+",
                                          encoding="utf-8")
         except Exception:
