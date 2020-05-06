@@ -23,17 +23,19 @@ def train_wordVectors(
     '''
     if check_model_exist(save_path):
         w2vModel = word2vec.Word2Vec.load(save_path)
+        print(w2vModel.alpha)
         w2vModel.build_vocab(sentences, update=True)
     else:
-        w2vModel = word2vec.Word2Vec(sentences,
-                                     size=embedding_size,
+        w2vModel = word2vec.Word2Vec(size=embedding_size,
                                      window=window,
                                      sg=1,
+                                     iter=1,
                                      min_count=min_count,
                                      workers=multiprocessing.cpu_count())
+        w2vModel.build_vocab(sentences=sentences)
     w2vModel.train(sentences,
                    total_examples=w2vModel.corpus_count,
-                   epochs=2)
+                   epochs=1)
     return w2vModel
 
 
@@ -77,6 +79,7 @@ def train_w2v():
                               embedding_size=256,
                               window=5,
                               min_count=5)
+    print(model.alpha)
     save_wordVectors(model, word2vec_path)
 
 
