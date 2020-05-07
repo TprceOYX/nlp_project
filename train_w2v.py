@@ -35,7 +35,7 @@ def train_wordVectors(
         w2vModel.build_vocab(sentences=sentences)
     w2vModel.train(sentences,
                    total_examples=w2vModel.corpus_count,
-                   epochs=1)
+                   epochs=3)
     return w2vModel
 
 

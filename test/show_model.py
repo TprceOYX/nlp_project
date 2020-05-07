@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pylab import mpl
 from gensim import models
-model = models.KeyedVectors.load_word2vec_format("./models/final/word2Vec2.model", binary=True)
+model = models.KeyedVectors.load_word2vec_format(
+    "./models/final/word2Vec2.model", binary=True)
 
 # y1 = model.similarity('国家', '国务院') #算两个词的相似度/相关程度
 # print('两个词的相似度: ', y1)
@@ -26,7 +27,6 @@ model = models.KeyedVectors.load_word2vec_format("./models/final/word2Vec2.model
 # print(y5)
 #
 y6 = model.vector_size  # 词向量维度
-# print('词向量维度:', y6) #python3
 print('词向量维度:', y6)
 
 # 模型可视化
@@ -35,6 +35,7 @@ print('词向量维度:', y6)
 
 # 我们使用下面的代码从我们的词汇中选择10,000个单词
 count = len(model.vectors)
+# count = 40000
 word_vectors_matrix = np.ndarray(shape=(count, 256), dtype='float32')
 word_list = []
 i = 0
@@ -48,6 +49,7 @@ print("word_vectors_matrix shape is: ", word_vectors_matrix.shape)
 
 # 由于模型是一个300维向量，利用Scikit-Learn 中的降维算法t-SNE
 # 初始化模型并将我们的单词向量压缩到二维空间
+# 降维操作
 
 tsne = ts.TSNE(n_components=2, random_state=0)
 word_vectors_matrix_2d = tsne.fit_transform(word_vectors_matrix)
@@ -73,9 +75,8 @@ mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显�
 # myfont = matplotlib.font_manager.FontProperties(fname='C:/Windows/Fonts/simsunb.ttf')
 # mpl.rcParams['axes.unicode_minus'] = False
 # plt.title(u'标题', fontproperties=myfont)
-
-sns.set_context(
-    'poster')  # 四种预设，按相对尺寸的顺序(线条越来越粗)，分别是paper，notebook, talk, and poster
+# 四种预设，按相对尺寸的顺序(线条越来越粗)，分别是paper，notebook, talk, and poster
+sns.set_context('poster')
 # points.plot.scatter("x", "y", s=10, figsize=(20, 12))
 # plt.show()
 

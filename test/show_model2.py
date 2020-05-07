@@ -1,5 +1,5 @@
 import gensim
-from sklearn.decomposition import IncrementalPCA  # inital reduction
+# from sklearn.decomposition import IncrementalPCA  # inital reduction
 from sklearn.manifold import TSNE  # final reduction
 import numpy as np  # array handling
 
