@@ -5,9 +5,11 @@ output
 *.vector
 .python-version
 train_data
+
 models
 cache
 zhwiki
 tf_idf_models
 novels
 train_data1
+experiment_data

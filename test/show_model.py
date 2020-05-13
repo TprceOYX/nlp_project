@@ -35,6 +35,7 @@ print('词向量维度:', y6)
 
 # 我们使用下面的代码从我们的词汇中选择10,000个单词
 count = len(model.vectors)
+print(model.vocab)
 # count = 40000
 word_vectors_matrix = np.ndarray(shape=(count, 256), dtype='float32')
 word_list = []

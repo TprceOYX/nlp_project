@@ -72,7 +72,8 @@ def make_tf_idf_model(model_path, data_path, model_name, dictionary_name):
         print("load tf-idf model")
         dictionary = corpora.Dictionary.load(
             os.path.join(model_path, dictionary_name))
-        dictionary.add_documents(create_dictionary(data_path), prune_at=6666666)
+        dictionary.add_documents(create_dictionary(data_path),
+                                 prune_at=6666666)
     else:
         dictionary = corpora.Dictionary(create_dictionary(data_path),
                                         prune_at=6666666)
@@ -94,9 +95,12 @@ def load_tf_idf_model(model_path, sentence):
     tfidf = models.TfidfModel.load(os.path.join(model_path, "tfidf.model"))
     p = sentence
     p_bow = dictionary.doc2bow((p.split()))
+    # p_bow存放二元对，第一个数字表示词语编号，第二个词语表示该词语在句子中出现的次数
+    print(p_bow)
     p_tfidf = tfidf[p_bow]
     r_tfidf = []
     for i in p_tfidf:
+        # i[0]->词语、i[1]->权重
         r_tfidf.append((new_dictionary.get(i[0]), i[1]))
     return r_tfidf
 
@@ -105,10 +109,13 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
     logging.root.setLevel(level=logging.INFO)
     # 生成tf-idf模型
-    # make_tf_idf_model(model_path="./tf_idf_models",
-    #                   data_path="./train_data",
-    #                   model_name="tfidf.model",
-    #                   dictionary_name="tfidf.dictionary")
-    # # 加载并使用模型
-    ti = load_tf_idf_model("./tf_idf_models", "我 熟练 使用 电脑 玩 电子游戏 尤其 是 外星人 鸦片 罂粟")
+    make_tf_idf_model(model_path="./tf_idf_models",
+                      data_path="./train_data",
+                      model_name="tfidf.model",
+                      dictionary_name="tfidf.dictionary")
+    # 加载并使用模型
+    ti = load_tf_idf_model(
+        "./tf_idf_models",
+        "计算机 中 存放 信息 的 主要 的 存储设备 就是 硬盘 但是 硬盘 不能 直接 使用 必须 对 硬盘 进行 分割 分割 成 的 一块 一块 的 硬盘 区域 就是 磁盘分区"
+    )
     print(ti)
