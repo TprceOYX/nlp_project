@@ -8,8 +8,6 @@ import numpy as np
 from gensim import corpora, models
 from opencc import OpenCC
 
-import process_train_data
-
 pattern = re.compile(u'[\u4e00-\u9fa5]+')
 
 
@@ -38,29 +36,6 @@ def pre_step(arr, cc, stop_words):
             if d not in stop_words:
                 data.append(cc.convert(d))
     return data
-
-
-def cal_sim(str1, str2, mode):
-    stop_words = process_train_data.get_stop_words("./data/stop_words.txt")
-    jieba.set_dictionary("./data/dict.txt.big")
-    cc = OpenCC("t2s")
-    s1 = jieba.cut(str1, cut_all=False)
-    s2 = jieba.cut(str2, cut_all=False)
-    # s1、s2去重
-    data1 = pre_step(s1, cc, stop_words)
-    data2 = pre_step(s2, cc, stop_words)
-    dictionary = corpora.Dictionary.load("./tf_idf_models/tfidf.dictionary")
-    vec1 = dictionary.doc2bow(data1)
-    # vec1[词的数字表示,频次]
-    vec2 = dictionary.doc2bow(data2)
-    new_dictionary = dictionary.token2id
-    new_dictionary = {v: k for k, v in new_dictionary.items()}
-    tfidf = models.TfidfModel.load("./tf_idf_models/tfidf.model")
-    tf1 = tfidf[vec1]
-    # tf1[词的数字表示，权重]
-    tf2 = tfidf[vec2]
-    return w2v(tf1, tf2, data1, data2, new_dictionary, mode)
-    # simhash(tf1, tf2, new_dictionary)
 
 
 def distance_haiming(hash1, hash2):
@@ -123,22 +98,53 @@ def simhash(tf1, tf2, new_dictionary):
     print("distance = " + str(distance))
 
 
-def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
-    if mode == "test":
-        w2v = models.KeyedVectors.load_word2vec_format(
-            "./models/final/word2Vec2.model", binary=True)
-        print("finish loading w2v model")
-    else:
-        w2v = models.word2vec.Word2Vec.load("./models/train/word2Vec2.model")
-        print("finish loading w2v model")
-        sentences = [s1, s2]
-        w2v.build_vocab(sentences, update=True)
-        print("finish update w2v model")
-        w2v.train(sentences, total_examples=2, epochs=w2v.iter)
-        print("finish train w2v model")
-        w2v.wv.wv.save_word2vec_format("./models/final/word2Vec2.model",
-                                       binary=True)
-        w2v.save("./models/train/word2Vec2.model")
+def read_file(path):
+    file = codecs.open(path, "r", encoding="utf-8")
+    data = []
+    for line in file:
+        data.append(line.strip())
+    return "".join(data)
+
+
+def get_stop_words(path):
+    stopwords = []
+    with codecs.open(path, "r", encoding='utf8') as f:
+        lines = f.readlines()
+        for line in lines:
+            stopwords.append(line.strip())
+        f.close()
+    return stopwords
+
+
+def cal_sim(str1, str2, stop_words, w2v, dictionary, new_dictionary, tfidf):
+    cc = OpenCC("t2s")
+    s1 = jieba.cut(str1, cut_all=False)
+    s2 = jieba.cut(str2, cut_all=False)
+    # s1、s2去重
+    data1 = pre_step(s1, cc, stop_words)
+    data2 = pre_step(s2, cc, stop_words)
+    a1 = []
+    a2 = []
+    for item in data1:
+        if (item not in dictionary.token2id) or (item not in w2v.vocab):
+            a1.append(item)
+    for item in data2:
+        if (item not in dictionary.token2id) or (item not in w2v.vocab):
+            a2.append(item)
+    data1 = [i for i in data1 if i not in a1]
+    data2 = [i for i in data2 if i not in a2]
+    vec1 = dictionary.doc2bow(data1)
+    # vec1[词的数字表示,频次]
+    vec2 = dictionary.doc2bow(data2)
+
+    tf1 = tfidf[vec1]
+    # tf1[词的数字表示，权重]
+    tf2 = tfidf[vec2]
+    return word2vec(tf1, tf2, data1, data2, new_dictionary, w2v)
+    # simhash(tf1, tf2, new_dictionary)
+
+
+def word2vec(tf1, tf2, s1, s2, new_dictionary, w2v):
     sim1 = 0
     total_wight1 = 0
     for t1 in tf1:
@@ -154,8 +160,6 @@ def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
         sim1 += m * wight
         total_wight1 += wight
     sim1 = (sim1 / total_wight1)
-    print("total:" + str(total_wight1) + ",sim1:" + str(sim1))
-    print("################################")
     # 第二句
     sim2 = 0
     total_wight2 = 0
@@ -172,22 +176,21 @@ def w2v(tf1, tf2, s1, s2, new_dictionary, mode):
         sim2 += m * wight
         total_wight2 += wight
     sim2 = (sim2 / total_wight2)
-    print("total:" + str(total_wight1) + ",sim2:" + str(sim2))
-    print("################################")
     sim = (sim1 + sim2) / 2
     print(sim)
     return sim
 
 
-def read_file(path):
-    file = codecs.open(path, "r", encoding="utf-8")
-    data = []
-    for line in file:
-        data.append(line.strip())
-    return "".join(data)
-
-
 if __name__ == "__main__":
+    jieba.set_dictionary("./data/dict.txt.big")
+    stop_words = get_stop_words("./data/stop_words.txt")
+    w2v = models.KeyedVectors.load_word2vec_format(
+        "./models/final/word2Vec2.model", binary=True)
+    print("finish loading w2v model")
+    dictionary = corpora.Dictionary.load("./tf_idf_models/tfidf.dictionary")
+    new_dictionary = dictionary.token2id
+    new_dictionary = {v: k for k, v in new_dictionary.items()}
+    tfidf = models.TfidfModel.load("./tf_idf_models/tfidf.model")
     count = len(sys.argv)
     sim = 0
     if count != 3:
@@ -205,12 +208,14 @@ if __name__ == "__main__":
                 也许是太阳公公的桥梁吧！太阳仿佛是一个胆小的姑娘，不敢往上爬升，只是在地平线上露出了小脑袋。天由鱼肚色慢慢变成似海洋的蔚蓝色，太阳爬得非常缓慢，
                 未免令人着急，渐渐地，太阳胆子变大了，露出了半个头，更加激动人心，接着，已经露出了三分之二。很快，太阳不断地努力，终于爬上了天空，
                 此时的太阳不像大火球，因为它要歇一歇，阳光十分温和。阳光把河水照得仿佛金子一样闪闪发光，鱼儿们游来游去，小鸟纷纷“叽叽喳喳”地唱歌。就这样，大地苏醒过来了。"""
-        sim = cal_sim(str1, str2, "test")
+        sim = cal_sim(str1, str2, stop_words, w2v, dictionary, new_dictionary,
+                      tfidf)
     else:
         a1 = sys.argv[1]
         a2 = sys.argv[2]
         if os.path.exists(a1) and os.path.exists(a2):
-            sim = cal_sim(read_file(a1), read_file(a2), "test")
+            sim = cal_sim(read_file(a1), read_file(a2), stop_words, w2v,
+                          dictionary, new_dictionary, tfidf)
         else:
             sim = cal_sim(a1, a2, "test")
     if sim > 0.80000:
